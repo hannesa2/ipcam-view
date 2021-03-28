@@ -18,17 +18,24 @@ jobs:
         uses: actions/setup-java@v1
         with:
           java-version: 1.8
+      - name: Get the version
+        id: tagger
+        uses: jimschubert/query-tag-action@v2
+        with:
+          skip-unshallow: 'true'
+          abbrev: false
+          commit-ish: HEAD
       - name: Install Android SDK
-        uses: malinskiy/action-android/install-sdk@release/0.1.0
+        uses: malinskiy/action-android/install-sdk@release/0.1.1
       - name: Build project
         run: ./gradlew clean build
         env:
           VERSION: ${{ github.ref }}
+          bintray.user: ${{ secrets.BINTRY_USER }}
+          bintray.apikey: ${{ secrets.BINTRY_APIKEY }}
       - run: |
           assetsAAR=$(find . -name *release.aar | while read -r asset ; do echo "-a $asset" ; done)
-          VERSION=$(echo $VERSION | cut -d'/' -f3)
-          tag_name="${GITHUB_REF##*/}"
-          hub release create ${assetsAAR} -m "$tag_name" "$tag_name"
+          hub release create ${assetsAAR} -m ${{steps.tagger.outputs.tag}} ${{steps.tagger.outputs.tag}}
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           VERSION: ${{ github.ref }}
