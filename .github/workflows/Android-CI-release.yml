@@ -17,7 +17,12 @@ jobs:
         uses: actions/checkout@v4
         with:
           fetch-depth: 0
-      - name: Find Tag
+      - name: Install JDK
+        uses: actions/setup-java@v4
+        with:
+          distribution: 'adopt'
+          java-version: 11
+      - name: Get the version
         id: tagger
         uses: jimschubert/query-tag-action@v2
         with:
