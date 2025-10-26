@@ -6,16 +6,13 @@ import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
-import android.widget.LinearLayout;
 import android.widget.Toast;
 
+import com.github.niqdev.ipcam.databinding.ActivityIpcamCustomAppearanceBinding;
 import com.github.niqdev.mjpeg.DisplayMode;
 import com.github.niqdev.mjpeg.Mjpeg;
-import com.github.niqdev.mjpeg.MjpegView;
 
 import androidx.appcompat.app.AppCompatActivity;
-import butterknife.BindView;
-import butterknife.ButterKnife;
 
 /**
  * Activity to show the possibilities of transparent stream background
@@ -26,32 +23,31 @@ public class IpCamCustomAppearanceActivity extends AppCompatActivity {
 
     private static final int TIMEOUT = 5;
 
-    @BindView(R.id.mjpegViewCustomAppearance)
-    MjpegView mjpegView;
-
-    @BindView(R.id.layoutProgressWrapper)
-    LinearLayout progressWrapper;
+    private ActivityIpcamCustomAppearanceBinding binding;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        binding = ActivityIpcamCustomAppearanceBinding.inflate(getLayoutInflater());
+        View view = binding.getRoot();
+        setContentView(view);
+
         setContentView(R.layout.activity_ipcam_custom_appearance);
-        ButterKnife.bind(this);
     }
 
     private void loadIpCam() {
-        progressWrapper.setVisibility(View.VISIBLE);
+        binding.layoutProgressWrapper.setVisibility(View.VISIBLE);
 
         Mjpeg.newInstance()
                 .open("http://62.176.195.157:80/mjpg/video.mjpg", TIMEOUT)
                 .subscribe(
                         inputStream -> {
-                            progressWrapper.setVisibility(View.GONE);
-                            mjpegView.setFpsOverlayBackgroundColor(Color.DKGRAY);
-                            mjpegView.setFpsOverlayTextColor(Color.WHITE);
-                            mjpegView.setSource(inputStream);
-                            mjpegView.setDisplayMode(DisplayMode.BEST_FIT);
-                            mjpegView.showFps(true);
+                            binding.layoutProgressWrapper.setVisibility(View.GONE);
+                            binding.mjpegViewCustomAppearance.setFpsOverlayBackgroundColor(Color.DKGRAY);
+                            binding.mjpegViewCustomAppearance.setFpsOverlayTextColor(Color.WHITE);
+                            binding.mjpegViewCustomAppearance.setSource(inputStream);
+                            binding.mjpegViewCustomAppearance.setDisplayMode(DisplayMode.BEST_FIT);
+                            binding.mjpegViewCustomAppearance.showFps(true);
                         },
                         throwable -> {
                             Log.e(getClass().getSimpleName(), "mjpeg error", throwable);
@@ -68,25 +64,25 @@ public class IpCamCustomAppearanceActivity extends AppCompatActivity {
     @Override
     protected void onPause() {
         super.onPause();
-        mjpegView.stopPlayback();
+        binding.mjpegViewCustomAppearance.stopPlayback();
     }
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         switch (item.getItemId()) {
             case R.id.action_toggleStream:
-                if (((View) mjpegView).getVisibility() == View.VISIBLE) {
-                    mjpegView.stopPlayback();
-                    mjpegView.clearStream();
-                    mjpegView.resetTransparentBackground();
+                if (binding.mjpegViewCustomAppearance.getVisibility() == View.VISIBLE) {
+                    binding.mjpegViewCustomAppearance.stopPlayback();
+                    binding.mjpegViewCustomAppearance.clearStream();
+                    binding.mjpegViewCustomAppearance.resetTransparentBackground();
 
-                    ((View) mjpegView).setVisibility(View.GONE);
+                    binding.mjpegViewCustomAppearance.setVisibility(View.GONE);
 
                     item.setIcon(R.drawable.ic_videocam_white_48dp);
                     item.setTitle(getString(R.string.menu_toggleStreamOn));
                 } else {
-                    mjpegView.setTransparentBackground();
-                    ((View) mjpegView).setVisibility(View.VISIBLE);
+                    binding.mjpegViewCustomAppearance.setTransparentBackground();
+                    binding.mjpegViewCustomAppearance.setVisibility(View.VISIBLE);
 
                     item.setIcon(R.drawable.ic_videocam_off_white_48dp);
                     item.setTitle(getString(R.string.menu_toggleStreamOff));
