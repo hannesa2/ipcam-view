@@ -1,59 +1,127 @@
-name: PullRequest
+name: Pull request
 
 on:
   push:
     branches:
       - master
   pull_request:
-    branches:
-      - master
+env:
+  resourceRunID: ${{ github.run_id }}-${{ github.run_number }}
 
 jobs:
-  buildTest:
-    name: Build & Test JDK ${{ matrix.java_version }}
-    runs-on: macOS-latest
+  Build:
+    name: Test
+    runs-on: ${{ matrix.os }}
     strategy:
+      fail-fast: false
       matrix:
-        java_version: [ 11.0.3 ]
+        os: [ ubuntu-24.04 ]
+        api: [ 34 ]
+        abi: [ x86_64 ]
+        emulatorApi: [ 14 ]
+        tag: [ 'google_apis' ]
     steps:
-      - name: Checkout
-        uses: actions/checkout@v4
+      - name: kvm support
+        run: |
+          egrep -c '(vmx|svm)' /proc/cpuinfo
+          id
+          sudo adduser $USER kvm
+          sudo chown -R $USER /dev/kvm
+          id
+      - name: prepare
+        run: |
+          sudo apt-get update && sudo apt-get install -y exiftool imagemagick xdg-utils libimage-exiftool-perl zsh jq xorg
+      - uses: actions/checkout@v5
         with:
-          fetch-depth: 0
-      - name: Install JDK ${{ matrix.java_version }}
-        uses: actions/setup-java@v4
+          submodules: true
+      - name: set up JDK
+        uses: actions/setup-java@v5
         with:
           distribution: 'adopt'
-          java-version: ${{ matrix.java_version }}
+          java-version: 17
+      - uses: gradle/actions/wrapper-validation@v5
       - name: Install Android SDK
-        uses: malinskiy/action-android/install-sdk@release/0.1.1
-      - name: Build project
-        run: ./gradlew build
-      - name: Run tests
-        run: ./gradlew test
+        uses: hannesa2/action-android/install-sdk@0.1.16.7
+      - name: Android Emulator test
+        uses: hannesa2/action-android/emulator-run-cmd@0.1.16.7
+        with:
+          cmd: ./gradlew cAT --continue
+          api: ${{ matrix.api }}
+          tag: ${{ matrix.tag }}
+          abi: ${{ matrix.abi }}
+          cmdOptions: -noaudio -no-boot-anim -no-window -metrics-collection
+          disableAnimations: true
+          bootTimeout: 720
+      - uses: actions/upload-artifact@v4
+        if: ${{ always() }}
+        with:
+          name: MQ-Espresso-${{ matrix.api }}-${{ matrix.abi }}-report-${{ matrix.emulatorApi }}
+          path: |
+            ./**/build/reports/androidTests/connected
+            ./**/build/outputs/androidTest-results/connected
+      - name: Archive screenshots ${{ matrix.emulatorApi }}
+        uses: actions/upload-artifact@v4
+        if: ${{ always() }}
+        with:
+          name: MQ-Screenshots-${{ matrix.api }}-${{ matrix.abi }}-${{ matrix.emulatorApi }}
+          path: |
+            app/build/outputs/connected_android_test_additional_output/debugAndroidTest/connected
+            app/build/outputs/androidTest-results/connected
+            mjpeg-view/build/outputs/connected_android_test_additional_output/debugAndroidTest/connected
+            mjpeg-view/build/outputs/androidTest-results/connected
+#      - name: Compare screenshots
+#        if: ${{ always() }}
+#        env:
+#          CLASSIC_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+#          emulatorApi: ${{ matrix.emulatorApi }}
+#        run: |
+#          ls -ls app/build/outputs/connected_android_test_additional_output/debugAndroidTest/connected
+#          cp app/build/outputs/connected_android_test_additional_output/debugAndroidTest/connected/emulator-5554\ -\ ${{ matrix.emulatorApi }}/* screenshotsToCompare${{ matrix.emulatorApi }}
+#          export DISPLAY=:99
+#          sudo Xvfb -ac :99 -screen 0 1280x1024x24 > /dev/null 2>&1 &
+#          echo ${{ env.resourceRunID }}
+#          ./screenShotScript/screenShotCompare.sh ${{ env.resourceRunID }}
+#      - name: Archive screenshots diffs ${{ matrix.emulatorApi }}
+#        if: ${{ always() }}
+#        uses: actions/upload-artifact@v4
+#        with:
+#          name: MQ-Screenshots-diffs-${{ matrix.emulatorApi }}
+#          path: |
+#            screenshotDiffs
+#            screenshotsToCompare${{ matrix.emulatorApi }}/view-*.png
+#      - name: Show git status ${{ matrix.emulatorApi }}
+#        if: ${{ always() }}
+#        run: |
+#          git add screenshotsToCompare${{ matrix.emulatorApi }}
+#          git status
+#          [ "$(git status -s -uno)" ] && exit 1 || exit 0
   Check:
     name: Check
-    runs-on: ubuntu-latest
+    runs-on: ${{ matrix.os }}
     strategy:
+      fail-fast: false
       matrix:
-        java_version: [ 11.0.3 ]
+        os: [ ubuntu-22.04 ]
     steps:
-      - name: Checkout
-        uses: actions/checkout@v4
+      - uses: actions/checkout@v5
         with:
-          fetch-depth: 0
-      - name: Install JDK ${{ matrix.java_version }}
-        uses: actions/setup-java@v4
+          submodules: true
+      - name: set up JDK
+        uses: actions/setup-java@v5
         with:
           distribution: 'adopt'
-          java-version: ${{ matrix.java_version }}
+          java-version: 17
       - name: Install Android SDK
-        uses: malinskiy/action-android/install-sdk@release/0.1.1
+        uses: hannesa2/action-android/install-sdk@0.1.16.7
+      - name: Run tests
+        run: ./gradlew test
       - name: Code checks
         run: ./gradlew check
       - name: Archive Lint report
         uses: actions/upload-artifact@v4
         if: ${{ always() }}
         with:
-          name: IP-Cam-Lint-report
-          path: app/build/reports/lint-results.html
+          name: IPView-Lint-report
+          path: |
+            ./**/build/reports/lint-results*.html
+            ./**/build/reports/ktlint/ktlintMainSourceSetCheck/ktlintMainSourceSetCheck.txt
