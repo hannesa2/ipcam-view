@@ -69,30 +69,28 @@ public class IpCamCustomAppearanceActivity extends AppCompatActivity {
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
-        switch (item.getItemId()) {
-            case R.id.action_toggleStream:
-                if (binding.mjpegViewCustomAppearance.getVisibility() == View.VISIBLE) {
-                    binding.mjpegViewCustomAppearance.stopPlayback();
-                    binding.mjpegViewCustomAppearance.clearStream();
-                    binding.mjpegViewCustomAppearance.resetTransparentBackground();
+        if (item.getItemId() == R.id.action_toggleStream) {
+            if (binding.mjpegViewCustomAppearance.getVisibility() == View.VISIBLE) {
+                binding.mjpegViewCustomAppearance.stopPlayback();
+                binding.mjpegViewCustomAppearance.clearStream();
+                binding.mjpegViewCustomAppearance.resetTransparentBackground();
 
-                    binding.mjpegViewCustomAppearance.setVisibility(View.GONE);
+                binding.mjpegViewCustomAppearance.setVisibility(View.GONE);
 
-                    item.setIcon(R.drawable.ic_videocam_white_48dp);
-                    item.setTitle(getString(R.string.menu_toggleStreamOn));
-                } else {
-                    binding.mjpegViewCustomAppearance.setTransparentBackground();
-                    binding.mjpegViewCustomAppearance.setVisibility(View.VISIBLE);
+                item.setIcon(R.drawable.ic_videocam_white_48dp);
+                item.setTitle(getString(R.string.menu_toggleStreamOn));
+            } else {
+                binding.mjpegViewCustomAppearance.setTransparentBackground();
+                binding.mjpegViewCustomAppearance.setVisibility(View.VISIBLE);
 
-                    item.setIcon(R.drawable.ic_videocam_off_white_48dp);
-                    item.setTitle(getString(R.string.menu_toggleStreamOff));
+                item.setIcon(R.drawable.ic_videocam_off_white_48dp);
+                item.setTitle(getString(R.string.menu_toggleStreamOff));
 
-                    loadIpCam();
-                }
-                return true;
-            default:
-                return super.onOptionsItemSelected(item);
+                loadIpCam();
+            }
+            return true;
         }
+        return super.onOptionsItemSelected(item);
     }
 
     @Override
