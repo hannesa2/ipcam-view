@@ -1,0 +1,9 @@
+[submodule "git-diff-image"]
+	path = git-diff-image
+	url = git@github.com:ewanmellor/git-diff-image.git
+[submodule "screenShotScript"]
+	path = screenShotScript
+	url = git@github.com:hannesa2/screenShotScript.git
+[submodule "buildSrc"]
+	path = buildSrc
+	url = git@github.com:hannesa2/KotlinBuildSource.git
