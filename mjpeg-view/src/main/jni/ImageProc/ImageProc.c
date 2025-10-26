@@ -1,4 +1,5 @@
 #include "ImageProc.h"
+#include <string.h>
 
 METHODDEF(void)
 my_error_exit (j_common_ptr cinfo)
