@@ -28,9 +28,6 @@ jobs:
           sudo adduser $USER kvm
           sudo chown -R $USER /dev/kvm
           id
-      - name: prepare
-        run: |
-          sudo apt-get update && sudo apt-get install -y exiftool imagemagick xdg-utils libimage-exiftool-perl zsh jq xorg
       - uses: actions/checkout@v5
         with:
           submodules: true
@@ -55,46 +52,10 @@ jobs:
       - uses: actions/upload-artifact@v4
         if: ${{ always() }}
         with:
-          name: MQ-Espresso-${{ matrix.api }}-${{ matrix.abi }}-report-${{ matrix.emulatorApi }}
+          name: ipcam-Espresso-${{ matrix.api }}-${{ matrix.abi }}-report-${{ matrix.emulatorApi }}
           path: |
             ./**/build/reports/androidTests/connected
             ./**/build/outputs/androidTest-results/connected
-      - name: Archive screenshots ${{ matrix.emulatorApi }}
-        uses: actions/upload-artifact@v4
-        if: ${{ always() }}
-        with:
-          name: MQ-Screenshots-${{ matrix.api }}-${{ matrix.abi }}-${{ matrix.emulatorApi }}
-          path: |
-            app/build/outputs/connected_android_test_additional_output/debugAndroidTest/connected
-            app/build/outputs/androidTest-results/connected
-            mjpeg-view/build/outputs/connected_android_test_additional_output/debugAndroidTest/connected
-            mjpeg-view/build/outputs/androidTest-results/connected
-#      - name: Compare screenshots
-#        if: ${{ always() }}
-#        env:
-#          CLASSIC_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-#          emulatorApi: ${{ matrix.emulatorApi }}
-#        run: |
-#          ls -ls app/build/outputs/connected_android_test_additional_output/debugAndroidTest/connected
-#          cp app/build/outputs/connected_android_test_additional_output/debugAndroidTest/connected/emulator-5554\ -\ ${{ matrix.emulatorApi }}/* screenshotsToCompare${{ matrix.emulatorApi }}
-#          export DISPLAY=:99
-#          sudo Xvfb -ac :99 -screen 0 1280x1024x24 > /dev/null 2>&1 &
-#          echo ${{ env.resourceRunID }}
-#          ./screenShotScript/screenShotCompare.sh ${{ env.resourceRunID }}
-#      - name: Archive screenshots diffs ${{ matrix.emulatorApi }}
-#        if: ${{ always() }}
-#        uses: actions/upload-artifact@v4
-#        with:
-#          name: MQ-Screenshots-diffs-${{ matrix.emulatorApi }}
-#          path: |
-#            screenshotDiffs
-#            screenshotsToCompare${{ matrix.emulatorApi }}/view-*.png
-#      - name: Show git status ${{ matrix.emulatorApi }}
-#        if: ${{ always() }}
-#        run: |
-#          git add screenshotsToCompare${{ matrix.emulatorApi }}
-#          git status
-#          [ "$(git status -s -uno)" ] && exit 1 || exit 0
   Check:
     name: Check
     runs-on: ${{ matrix.os }}
