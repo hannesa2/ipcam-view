@@ -1,25 +1,24 @@
 package com.github.niqdev.ipcam;
 
 import android.os.Bundle;
+import android.view.View;
 
+import com.github.niqdev.ipcam.databinding.ActivityIpcamNativeBinding;
 import com.github.niqdev.mjpeg.DisplayMode;
 import com.github.niqdev.mjpeg.Mjpeg;
-import com.github.niqdev.mjpeg.MjpegView;
 
 import androidx.appcompat.app.AppCompatActivity;
-import butterknife.BindView;
-import butterknife.ButterKnife;
 
 public class IpCamNativeActivity extends AppCompatActivity {
 
-    @BindView(R.id.mjpegViewNative)
-    MjpegView mjpegView;
+    ActivityIpcamNativeBinding binding;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_ipcam_native);
-        ButterKnife.bind(this);
+        binding = ActivityIpcamNativeBinding.inflate(getLayoutInflater());
+        View view = binding.getRoot();
+        setContentView(view);
 
         // TODO if (mjpegView != null) mjpegView.setResolution(width, height);
         loadIpcam();
@@ -30,10 +29,10 @@ public class IpCamNativeActivity extends AppCompatActivity {
                 //.credential("", "")
                 .open("http://wmccpinetop.axiscam.net/mjpg/video.mjpg")
                 .subscribe(inputStream -> {
-                    mjpegView.setSource(inputStream);
+                    binding.mjpegViewNative.setSource(inputStream);
                     // TODO if (inputStream != null) inputStream.setSkip(1)
-                    mjpegView.setDisplayMode(DisplayMode.BEST_FIT);
-                    mjpegView.showFps(true);
+                    binding.mjpegViewNative.setDisplayMode(DisplayMode.BEST_FIT);
+                    binding.mjpegViewNative.showFps(true);
                 });
     }
 
@@ -55,19 +54,15 @@ public class IpCamNativeActivity extends AppCompatActivity {
     protected void onPause() {
         super.onPause();
 
-        if (mjpegView != null) {
-            if (mjpegView.isStreaming()) {
-                mjpegView.stopPlayback();
-                //suspending = true;
-            }
+        if (binding.mjpegViewNative.isStreaming()) {
+            binding.mjpegViewNative.stopPlayback();
+            //suspending = true;
         }
     }
 
     @Override
     protected void onDestroy() {
-        if (mjpegView != null) {
-            mjpegView.freeCameraMemory();
-        }
+        binding.mjpegViewNative.freeCameraMemory();
         super.onDestroy();
     }
 }

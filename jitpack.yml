@@ -1,4 +1,4 @@
 jdk:
-  - openjdk11
+  - openjdk17
 install:
   - ./gradlew :mjpeg-view:build :mjpeg-view:publishToMavenLocal -x :mjpeg-view:test
