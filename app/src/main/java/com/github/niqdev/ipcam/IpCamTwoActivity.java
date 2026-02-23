@@ -2,31 +2,26 @@ package com.github.niqdev.ipcam;
 
 import android.os.Bundle;
 import android.util.Log;
+import android.view.View;
 import android.widget.Toast;
 
+import com.github.niqdev.ipcam.databinding.ActivityIpcamTwoCameraBinding;
 import com.github.niqdev.mjpeg.DisplayMode;
 import com.github.niqdev.mjpeg.Mjpeg;
-import com.github.niqdev.mjpeg.MjpegView;
 
 import androidx.appcompat.app.AppCompatActivity;
-import butterknife.BindView;
-import butterknife.ButterKnife;
 
 public class IpCamTwoActivity extends AppCompatActivity {
 
     private static final int TIMEOUT = 5;
-
-    @BindView(R.id.mjpegViewDefault1)
-    MjpegView mjpegView1;
-
-    @BindView(R.id.mjpegViewDefault2)
-    MjpegView mjpegView2;
+    private ActivityIpcamTwoCameraBinding binding;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_ipcam_two_camera);
-        ButterKnife.bind(this);
+        binding = ActivityIpcamTwoCameraBinding.inflate(getLayoutInflater());
+        View view = binding.getRoot();
+        setContentView(view);
     }
 
     private void loadIpCam1() {
@@ -34,9 +29,9 @@ public class IpCamTwoActivity extends AppCompatActivity {
                 .open("http://50.244.186.65:8081/mjpg/video.mjpg", TIMEOUT)
                 .subscribe(
                         inputStream -> {
-                            mjpegView1.setSource(inputStream);
-                            mjpegView1.setDisplayMode(DisplayMode.BEST_FIT);
-                            mjpegView1.showFps(true);
+                            binding.mjpegViewDefault1.setSource(inputStream);
+                            binding.mjpegViewDefault1.setDisplayMode(DisplayMode.BEST_FIT);
+                            binding.mjpegViewDefault1.showFps(true);
                         },
                         throwable -> {
                             Log.e(getClass().getSimpleName(), "mjpeg error", throwable);
@@ -49,9 +44,9 @@ public class IpCamTwoActivity extends AppCompatActivity {
                 .open("http://iris.not.iac.es/axis-cgi/mjpg/video.cgi?resolution=320x240", TIMEOUT)
                 .subscribe(
                         inputStream -> {
-                            mjpegView2.setSource(inputStream);
-                            mjpegView2.setDisplayMode(DisplayMode.BEST_FIT);
-                            mjpegView2.showFps(true);
+                            binding.mjpegViewDefault2.setSource(inputStream);
+                            binding.mjpegViewDefault2.setDisplayMode(DisplayMode.BEST_FIT);
+                            binding.mjpegViewDefault2.showFps(true);
                         },
                         throwable -> {
                             Log.e(getClass().getSimpleName(), "mjpeg error", throwable);
@@ -69,8 +64,8 @@ public class IpCamTwoActivity extends AppCompatActivity {
     @Override
     protected void onPause() {
         super.onPause();
-        mjpegView1.stopPlayback();
-        mjpegView2.stopPlayback();
+        binding.mjpegViewDefault1.stopPlayback();
+        binding.mjpegViewDefault2.stopPlayback();
     }
 
 }
