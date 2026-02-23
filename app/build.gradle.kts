@@ -9,12 +9,12 @@ plugins {
 
 android {
     namespace = "com.github.niqdev.ipcam"
-    compileSdk = 33
+    compileSdk = 36
 
     defaultConfig {
         applicationId = "com.github.niqdev.ipcam"
         minSdk = 21
-        targetSdk = 33
+        targetSdk = 36
         versionCode = "${getGitCommitCount()}0".toInt()
         versionName = "${getVersionText()}.$versionCode"
         println { "versionName=${versionName.green.bold} versionCode=${versionCode.green.bold}" }

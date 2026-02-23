@@ -6,11 +6,10 @@ plugins {
 
 android {
     namespace = "com.github.niqdev.mjpeg"
-    compileSdk = 33
+    compileSdk = 36
 
     defaultConfig {
         minSdk = 21
-        targetSdk = 33
     }
 
     buildTypes {
