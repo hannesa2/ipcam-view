@@ -1,7 +1,3 @@
-import info.git.versionHelper.getGitCommitCount
-import info.git.versionHelper.getVersionText
-import info.git.versionHelper.println
-
 plugins {
     id("com.android.application")
     id("kotlin-android")
@@ -15,9 +11,8 @@ android {
         applicationId = "com.github.niqdev.ipcam"
         minSdk = 21
         targetSdk = 36
-        versionCode = "${getGitCommitCount()}0".toInt()
-        versionName = "${getVersionText()}.$versionCode"
-        println { "versionName=${versionName.green.bold} versionCode=${versionCode.green.bold}" }
+        versionCode = 1
+        versionName = "3.0"
     }
 
     buildFeatures {
